@@ -1,29 +1,9 @@
 <?php
 
-/*
-adb.exe
-class
-database
-add custom entry
-*/
+$ini_array = parse_ini_file("keywords.ini");
 
-$creditKeywords = [
-    'credited',
-];
-
-$debitKeywords = [
-    'debited',
-    'fund transfer',
-    'pos transaction',
-    'cash withdrawal',
-    'charged with pkr',
-    'paid bill',
-    'paid a kelectric',
-    'paid a ssgc',
-    'paid a ssgp',
-    'eft of pkr',
-    'ibft of pkr'
-];
+$creditKeywords = explode(',', $ini_array['credit_keywords']);
+$debitKeywords = explode(',', $ini_array['debit_keywords']);
 
 date_default_timezone_set('Asia/Karachi');
 
@@ -45,7 +25,7 @@ if (isset($_POST['submit'])) {
 
     if ($deviceConnected) {
         
-        $adbCommand = 'adb shell "content query --uri content://sms/ --projection date:body" > sms.lst';
+        $adbCommand = '.\adb.exe shell "content query --uri content://sms/ --projection date:body" > sms.lst';
 
         exec($adbCommand, $output, $returnVar);
 
@@ -182,6 +162,8 @@ if (file_exists('sms.lst') && filesize('sms.lst') > 0) {
                 </select>
             </div>
         </div>
+        
+        <?php if (file_exists('sms.lst') && filesize('sms.lst') > 0) : ?>
 
         <div class="row" id="monthData">
             <div class="col-md-6">
@@ -253,6 +235,8 @@ if (file_exists('sms.lst') && filesize('sms.lst') > 0) {
             </div>
         </div>
     </div>
+    
+    <?php endif ?>
 
     <script>
         $(document).ready(function() {

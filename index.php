@@ -54,31 +54,32 @@ if (file_exists('sms.lst') && filesize('sms.lst') > 0) {
     });
 
     foreach ($smsMessages as $message) {
-        $body = explode("body=", $message)[1];
+        $body = explode("body=", $message)[1] ?? null;
         $date = explode("date=", $message);
+        
+        if (!isset($body)) {
+            continue;
+        }
         
         $date = explode("date=", $message);
         preg_match("/\d+, /", $date[1], $matches);
         $date = rtrim(trim($matches[0]), ',');
         
-        if (isset($body)) {
-            
-            preg_match("/PKR \d+(,\d+)*(\.\d+)?|Rs\.? \d+(,\d+)*(\.\d+)?|\d+(,\d+)*(\.\d+)? amount/i", $body, $amountMatches);
-            $amount = isset($amountMatches[0]) ? $amountMatches[0] : 0;
-            
-            $amount = preg_replace("/[^0-9.]/", "", $amount);
-            $amount = trim($amount, '.');
+        preg_match("/PKR \d+(,\d+)*(\.\d+)?|Rs\.? \d+(,\d+)*(\.\d+)?|\d+(,\d+)*(\.\d+)? amount/i", $body, $amountMatches);
+        $amount = isset($amountMatches[0]) ? $amountMatches[0] : 0;
+        
+        $amount = preg_replace("/[^0-9.]/", "", $amount);
+        $amount = trim($amount, '.');
 
-            $messageData = [
-                'date' => $date,
-                'message' => $body,
-                'amount' => $amount,
-                'is_credit' => (bool)preg_match("/\b(" . implode('|', $creditKeywords) . ")\b/i", $body),
-                'is_debit' => (bool)preg_match("/\b(" . implode('|', $debitKeywords) . ")\b/i", $body),
-            ];
-            
-            $messages[] = $messageData;
-        }
+        $messageData = [
+            'date' => $date,
+            'message' => $body,
+            'amount' => $amount,
+            'is_credit' => (bool)preg_match("/\b(" . implode('|', $creditKeywords) . ")\b/i", $body),
+            'is_debit' => (bool)preg_match("/\b(" . implode('|', $debitKeywords) . ")\b/i", $body),
+        ];
+        
+        $messages[] = $messageData;
     }
 
     $messages = array_filter($messages, function($message) {

@@ -5,6 +5,9 @@ $ini_array = parse_ini_file("keywords.ini");
 $creditKeywords = explode(',', $ini_array['credit_keywords']);
 $debitKeywords = explode(',', $ini_array['debit_keywords']);
 
+$creditKeywords = array_map('trim', $creditKeywords);
+$debitKeywords = array_map('trim', $debitKeywords);
+
 date_default_timezone_set('Asia/Karachi');
 
 if (isset($_POST['submit'])) {
